@@ -1,6 +1,7 @@
 PIPENV_RUN = pipenv run
 BASE_DIR = ./src
 MANAGE_PY = $(BASE_DIR)/manage.py
+DOCKER_COMPOSE = docker-compose
 
 .PHONY: test clean migrate migrations run createsuperuser
 
@@ -24,3 +25,12 @@ create_superuser:
 	$(PIPENV_RUN) python $(MANAGE_PY) shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'password') if not User.objects.filter(username='admin').exists() else print('Superuser already exists.')"
 
 
+# Docker
+docker-build:
+	$(DOCKER_COMPOSE) build
+
+docker-up:
+	$(DOCKER_COMPOSE) up $(option)
+
+docker-down:
+	$(DOCKER_COMPOSE) down
