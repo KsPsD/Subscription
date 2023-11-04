@@ -1,0 +1,34 @@
+# docker-compose.yml
+
+version: '3.8'
+services:
+  db:
+    image: postgres:13
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+    environment:
+      - POSTGRES_DB=test_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=DO_NOT_USE_THIS_PASSWORD_IN_PRODUCTION
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres:DO_NOT_USE_THIS_PASSWORD_IN_PRODUCTION@db:5432/test_db
+
+volumes:
+  postgres_data:
