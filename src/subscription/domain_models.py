@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 
@@ -10,10 +10,38 @@ class PlanName(str, Enum):
     PREMIUM = "premium"
 
 
+class PaymentCycle(str, Enum):
+    MONTHLY = "monthly"
+    YEARLY = "yearly"
+    ONCE = "once"
+
+
+class SubscriptionStatus(str, Enum):
+    ACTIVE = "active"
+    EXPIRED = "expired"
+    PENDING = "pending"
+
+
+class PaymentMethodType(str, Enum):
+    CREDIT_CARD = "credit_card"
+    BANK_TRANSFER = "bank_transfer"
+    POINT = "point"
+
+
+class PaymentStatus(str, Enum):
+    SUCCESS = "Succeeded"
+    PENDING = "pending"
+    FAILED = "failed"
+    PROCESSING = "processing"
+    CANCELED = "canceled"
+    REFUNDED = "refunded"
+
+
 @dataclass
 class SubscriptionPlan:
     name: PlanName
     price: float
+    payment_cycle: PaymentCycle
     description: str
     duration_days: int
 
@@ -21,16 +49,16 @@ class SubscriptionPlan:
 @dataclass
 class UserSubscription:
     user_id: int
-    plan: SubscriptionPlan
+    plan_id: int
     start_date: date
     end_date: date
-    active: bool
+    status: SubscriptionStatus
 
 
 @dataclass
 class PaymentMethod:
     user_id: int
-    method_type: str
+    method_type: PaymentMethodType
     details: dict
 
 
@@ -39,5 +67,5 @@ class Payment:
     subscription: UserSubscription
     payment_method: Optional[PaymentMethod]
     amount: float
-    date: date
-    successful: bool
+    date: datetime
+    status: PaymentStatus
