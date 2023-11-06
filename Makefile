@@ -2,6 +2,7 @@ PIPENV_RUN = pipenv run
 BASE_DIR = ./src
 MANAGE_PY = $(BASE_DIR)/manage.py
 DOCKER_COMPOSE = docker-compose
+APP_NAME = subscription
 
 .PHONY: test clean migrate migrations run createsuperuser
 
@@ -9,7 +10,10 @@ migrations:
 	$(PIPENV_RUN) python $(MANAGE_PY) makemigrations
 
 migrate:
-	$(PIPENV_RUN) python $(MANAGE_PY) migrate
+	$(PIPENV_RUN) python $(MANAGE_PY) migrate $(APP_NAME) $(target)
+
+showmigrations:
+	$(PIPENV_RUN) python $(MANAGE_PY) showmigrations
 
 test:
 	cd $(BASE_DIR) && $(PIPENV_RUN) python manage.py test $(target)
