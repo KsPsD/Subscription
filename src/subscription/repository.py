@@ -53,10 +53,17 @@ class DjangoPaymentRepository:
     def add(self, payment: domain_models.Payment):
         self.update(payment)
 
-    def get(self, user_id: int) -> domain_models.Payment:
+    def get(self, id: int) -> domain_models.Payment:
         try:
-            payment = models.Payment.objects.get(user_id=user_id)
+            payment = models.Payment.objects.get(id=id)
             return payment.to_domain()
+        except models.Payment.DoesNotExist:
+            raise ValueError(f"Payment for  {id} does not exist")
+
+    def get_list_by_user_id(self, user_id: int) -> domain_models.Payment:
+        try:
+            payments = models.Payment.objects.filter(subscription__user_id=user_id)
+            return [payment.to_domain() for payment in payments]
         except models.Payment.DoesNotExist:
             raise ValueError(f"Payment for user {user_id} does not exist")
 
@@ -74,12 +81,12 @@ class DjangoPaymentMethodRepository:
     def add(self, payment_method: domain_models.PaymentMethod):
         self.update(payment_method)
 
-    def get(self, user_id: int) -> domain_models.PaymentMethod:
+    def get(self, id: int) -> domain_models.PaymentMethod:
         try:
-            payment_method = models.PaymentMethod.objects.get(user_id=user_id)
+            payment_method = models.PaymentMethod.objects.get(id=id)
             return payment_method.to_domain()
         except models.PaymentMethod.DoesNotExist:
-            raise ValueError(f"PaymentMethod for user {user_id} does not exist")
+            raise ValueError(f"PaymentMethod for  {id} does not exist")
 
     def list(self) -> List[domain_models.PaymentMethod]:
         return [
