@@ -95,18 +95,14 @@ class UserSubscription(models.Model):
 
 
 class PaymentMethod(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="payment_methods"
-    )
     method_type = models.CharField(max_length=50)
     details = models.JSONField()
 
     def __str__(self):
-        return f"{self.method_type} for {self.user.username}"
+        return f"{self.method_type}"
 
     def to_domain(self) -> domain_models.PaymentMethod:
         return domain_models.PaymentMethod(
-            user_id=self.user.id,
             method_type=domain_models.PaymentMethodType(self.method_type),
             details=self.details,
         )
@@ -114,7 +110,7 @@ class PaymentMethod(models.Model):
     @staticmethod
     def update_from_domain(payment_method: domain_models.PaymentMethod):
         payment_method_django, _ = PaymentMethod.objects.get_or_create(
-            user_id=payment_method.user_id, method_type=payment_method.method_type.value
+            method_type=payment_method.method_type.value
         )
 
         payment_method_django.details = payment_method.details
@@ -143,12 +139,12 @@ class Payment(models.Model):
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default="pending")
 
     def __str__(self):
-        return f"Payment of {self.amount} for {self.subscription.plan.name}"
+        return f"Payment of {self.amount} for {self.subscription.plan.name} of {self.subscription.user.username}"
 
     def to_domain(self) -> domain_models.Payment:
         return domain_models.Payment(
-            subscription=self.subscription.to_domain(),
-            payment_method=self.payment_method.to_domain(),
+            subscription_id=self.subscription.id,
+            payment_method_id=self.payment_method.id,
             amount=float(self.amount),
             date=self.date.date(),
             status=domain_models.PaymentStatus(self.status),
@@ -157,8 +153,8 @@ class Payment(models.Model):
     @staticmethod
     def update_from_domain(payment: domain_models.Payment):
         payment_django, _ = Payment.objects.get_or_create(
-            subscription__user_id=payment.subscription.user_id,
-            subscription__plan__name=payment.subscription.plan.name,
+            subscription_id=payment.subscription.id,
+            payment_method_id=payment.payment_method.id,
             date=payment.date,
         )
 

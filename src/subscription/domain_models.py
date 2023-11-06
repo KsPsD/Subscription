@@ -57,15 +57,14 @@ class UserSubscription:
 
 @dataclass
 class PaymentMethod:
-    user_id: int
     method_type: PaymentMethodType
     details: dict
 
 
 @dataclass
 class Payment:
-    subscription: UserSubscription
-    payment_method: Optional[PaymentMethod]
+    subscription_id: int
+    payment_method_id: int
     amount: float
     date: datetime
     status: PaymentStatus
