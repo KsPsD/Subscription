@@ -28,13 +28,23 @@ class DjangoUserSubscriptionRepository(
     def add(self, subscription: domain_models.UserSubscription):
         self.update(subscription)
 
-    def get(self, user_id: int) -> Optional[domain_models.UserSubscription]:
+    def get(self, subscription_id: int) -> Optional[domain_models.UserSubscription]:
         try:
-            subscription = models.UserSubscription.objects.get(user_id=user_id)
+            subscription = models.UserSubscription.objects.get(id=subscription_id)
             return subscription.to_domain()
 
         except models.UserSubscription.DoesNotExist:
-            raise ValueError(f"Subscription for user {user_id} does not exist")
+            raise ValueError(f"Subscription for  {subscription_id} does not exist")
+
+    def get_by_user_id(self, user_id: int) -> Optional[domain_models.UserSubscription]:
+        queryset = models.UserSubscription.objects.filter(user_id=user_id)
+
+        django_subscription = queryset.first()
+
+        if django_subscription:
+            return django_subscription.to_domain()
+        else:
+            return None
 
     def list(self) -> List[domain_models.UserSubscription]:
         return [
