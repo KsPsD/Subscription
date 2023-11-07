@@ -1,12 +1,30 @@
 # repository.py
 
-from typing import List, Optional
+from typing import Generic, List, Optional, TypeVar
 
 import subscription.domain_models as domain_models
 import subscription.models as models
 
+T = TypeVar("T")
 
-class DjangoUserSubscriptionRepository:
+
+class AbstractRepository(Generic[T]):
+    def add(self, obj: T):
+        raise NotImplementedError
+
+    def get(self, id: int) -> T:
+        raise NotImplementedError
+
+    def list(self) -> List[T]:
+        raise NotImplementedError
+
+    def update(self, obj: T):
+        raise NotImplementedError
+
+
+class DjangoUserSubscriptionRepository(
+    AbstractRepository[domain_models.UserSubscription]
+):
     def add(self, subscription: domain_models.UserSubscription):
         self.update(subscription)
 
@@ -28,7 +46,9 @@ class DjangoUserSubscriptionRepository:
         models.UserSubscription.update_from_domain(subscription)
 
 
-class DjangoSubscriptionPlanRepository:
+class DjangoSubscriptionPlanRepository(
+    AbstractRepository[domain_models.SubscriptionPlan]
+):
     def add(self, plan: domain_models.SubscriptionPlan):
         self.update(plan)
 
@@ -49,7 +69,7 @@ class DjangoSubscriptionPlanRepository:
         models.SubscriptionPlan.update_from_domain(plan)
 
 
-class DjangoPaymentRepository:
+class DjangoPaymentRepository(AbstractRepository[domain_models.Payment]):
     def add(self, payment: domain_models.Payment):
         self.update(payment)
 
@@ -77,7 +97,7 @@ class DjangoPaymentRepository:
         models.Payment.update_from_domain(payment)
 
 
-class DjangoPaymentMethodRepository:
+class DjangoPaymentMethodRepository(AbstractRepository[domain_models.PaymentMethod]):
     def add(self, payment_method: domain_models.PaymentMethod):
         self.update(payment_method)
 
