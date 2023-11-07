@@ -44,13 +44,7 @@ class DjangoUserSubscriptionRepositoryTest(TestCase):
             status=SubscriptionStatus.ACTIVE.value,
         )
 
-        self.domain_user_subscription = DomainUserSubscription(
-            user_id=self.user.id,
-            plan_id=self.plan.id,
-            start_date=date.today(),
-            end_date=date.today(),
-            status=SubscriptionStatus.ACTIVE,
-        )
+        self.domain_user_subscription = self.user_subscription.to_domain()
 
         self.repository = DjangoUserSubscriptionRepository()
 
@@ -133,7 +127,6 @@ class DjangoPaymentRepositoryTest(TestCase):
         )
 
         self.payment_method = PaymentMethod.objects.create(
-            user=self.user,
             method_type=PaymentMethodType.CREDIT_CARD.value,
             details={"card_number": "1234-1234-1234-1234"},
         )
@@ -145,9 +138,13 @@ class DjangoPaymentRepositoryTest(TestCase):
             date=date.today(),
             status=PaymentStatus.SUCCESS.value,
         )
+        self.domian_payment = self.payment.to_domain()
+
+        self.domian_payment_method = self.payment_method.to_domain()
 
         self.user_subscriptions = DjangoUserSubscriptionRepository()
         self.payments = DjangoPaymentRepository()
+        self.payment_methods = DjangoPaymentMethodRepository()
 
     def test_get_payment(self):
         # Test getting an existing payment
@@ -155,3 +152,38 @@ class DjangoPaymentRepositoryTest(TestCase):
         self.assertIsNotNone(retrieved_payments)
         self.assertIsInstance(retrieved_payments, list)
         self.assertTrue(len(retrieved_payments) > 0)
+
+    def test_list_payments(self):
+        # Test listing all payments
+        payments = self.payments.list()
+        self.assertIsInstance(payments, list)
+        self.assertTrue(len(payments) > 0)
+
+    def test_update_payment(self):
+        # Test updating an existing payment
+        self.domian_payment.status = PaymentStatus.PENDING
+        self.payments.update(self.domian_payment)
+        updated_payment = Payment.objects.get(
+            subscription=self.user_subscription, payment_method=self.payment_method
+        )
+        self.assertEqual(updated_payment.status, PaymentStatus.PENDING.value)
+
+    def test_update_payment_method(self):
+        # Test updating an existing payment method
+
+        self.domian_payment_method.details = {"card_number": "1234-1234-1234-1234"}
+        self.payment_methods.update(self.domian_payment_method)
+
+        updated_payment_method = PaymentMethod.objects.get(
+            method_type=PaymentMethodType.CREDIT_CARD.value
+        )
+        self.assertEqual(
+            updated_payment_method.details, {"card_number": "1234-1234-1234-1234"}
+        )
+
+    def tearDown(self):
+        User.objects.all().delete()
+        SubscriptionPlan.objects.all().delete()
+        UserSubscription.objects.all().delete()
+        PaymentMethod.objects.all().delete()
+        Payment.objects.all().delete()
