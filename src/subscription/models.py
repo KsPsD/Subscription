@@ -146,15 +146,15 @@ class Payment(models.Model):
             subscription_id=self.subscription.id,
             payment_method_id=self.payment_method.id,
             amount=float(self.amount),
-            date=self.date.date(),
+            date=self.date,
             status=domain_models.PaymentStatus(self.status),
         )
 
     @staticmethod
     def update_from_domain(payment: domain_models.Payment):
         payment_django, _ = Payment.objects.get_or_create(
-            subscription_id=payment.subscription.id,
-            payment_method_id=payment.payment_method.id,
+            subscription_id=payment.subscription_id,
+            payment_method_id=payment.payment_method_id,
             date=payment.date,
         )
 
