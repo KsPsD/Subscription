@@ -73,7 +73,7 @@ class DjangoUserSubscriptionRepositoryTest(TestCase):
 
     def test_get_subscription(self):
         # Test getting an existing subscription
-        retrieved_subscription = self.repository.get(user_id=self.user.id)
+        retrieved_subscription = self.repository.get_by_user_id(user_id=self.user.id)
         self.assertIsNotNone(retrieved_subscription)
         self.assertEqual(retrieved_subscription.user_id, self.user.id)
 
@@ -91,11 +91,6 @@ class DjangoUserSubscriptionRepositoryTest(TestCase):
             user=self.user, plan=self.plan
         )
         self.assertEqual(updated_subscription.status, SubscriptionStatus.EXPIRED.value)
-
-    def tearDown(self):
-        User.objects.all().delete()
-        SubscriptionPlan.objects.all().delete()
-        UserSubscription.objects.all().delete()
 
 
 class DjangoPaymentRepositoryTest(TestCase):
@@ -180,10 +175,3 @@ class DjangoPaymentRepositoryTest(TestCase):
         self.assertEqual(
             updated_payment_method.details, {"card_number": "1234-1234-1234-1234"}
         )
-
-    def tearDown(self):
-        User.objects.all().delete()
-        SubscriptionPlan.objects.all().delete()
-        UserSubscription.objects.all().delete()
-        PaymentMethod.objects.all().delete()
-        Payment.objects.all().delete()
