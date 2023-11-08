@@ -1,7 +1,10 @@
-from dataclasses import dataclass
+import uuid
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
 from typing import Optional
+
+from subscription import models
 
 
 class PlanName(str, Enum):
@@ -44,6 +47,7 @@ class SubscriptionPlan:
     payment_cycle: PaymentCycle
     description: str
     duration_days: int
+    id: uuid.UUID = field(default_factory=uuid.uuid4)
 
 
 @dataclass
@@ -53,12 +57,14 @@ class UserSubscription:
     start_date: date
     end_date: date
     status: SubscriptionStatus
+    id: uuid.UUID = field(default_factory=uuid.uuid4)
 
 
 @dataclass
 class PaymentMethod:
     method_type: PaymentMethodType
     details: dict
+    id: uuid.UUID = field(default_factory=uuid.uuid4)
 
 
 @dataclass
@@ -68,3 +74,4 @@ class Payment:
     amount: float
     date: datetime
     status: PaymentStatus
+    id: uuid.UUID = field(default_factory=uuid.uuid4)

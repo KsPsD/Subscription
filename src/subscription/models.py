@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta
 from decimal import Decimal
 
@@ -20,6 +21,7 @@ class SubscriptionPlan(models.Model):
         ("yearly", _("Yearly")),
         ("once", _("Once")),
     ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     name = models.CharField(max_length=100, choices=PLAN_CHOICES, unique=True)
     price = models.DecimalField(
@@ -43,8 +45,9 @@ class SubscriptionPlan(models.Model):
 
     @staticmethod
     def update_from_domain(plan: domain_models.SubscriptionPlan):
-        plan_django, _ = SubscriptionPlan.objects.get_or_create(name=plan.name.value)
-
+        plan_django, _ = SubscriptionPlan.objects.get_or_create(
+            id=plan.id, defaults=dict(name=plan.name.value)
+        )
         plan_django.price = Decimal(plan.price)
         plan_django.payment_cycle = plan.payment_cycle.value
         plan_django.description = plan.description
@@ -59,6 +62,8 @@ class UserSubscription(models.Model):
         ("pending", _("Pending")),
         # 기타 필요한 상태를 추가할 수 있습니다.
     ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="subscriptions"
     )
@@ -84,10 +89,13 @@ class UserSubscription(models.Model):
     @staticmethod
     def update_from_domain(subscription: domain_models.UserSubscription):
         subscription_django, _ = UserSubscription.objects.get_or_create(
-            user_id=subscription.user_id,
-            plan_id=subscription.plan_id,
-            start_date=subscription.start_date,
-            end_date=subscription.end_date,
+            id=subscription.id,
+            defaults=dict(
+                user_id=subscription.user_id,
+                plan_id=subscription.plan_id,
+                start_date=subscription.start_date,
+                end_date=subscription.end_date,
+            ),
         )
 
         subscription_django.status = subscription.status.value
@@ -95,6 +103,8 @@ class UserSubscription(models.Model):
 
 
 class PaymentMethod(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     method_type = models.CharField(max_length=50)
     details = models.JSONField()
 
@@ -110,10 +120,12 @@ class PaymentMethod(models.Model):
     @staticmethod
     def update_from_domain(payment_method: domain_models.PaymentMethod):
         payment_method_django, _ = PaymentMethod.objects.get_or_create(
-            method_type=payment_method.method_type.value
+            id=payment_method.id,
+            defaults=dict(
+                method_type=payment_method.method_type.value,
+                details=payment_method.details,
+            ),
         )
-
-        payment_method_django.details = payment_method.details
         payment_method_django.save()
 
 
@@ -126,6 +138,8 @@ class Payment(models.Model):
         ("canceled", "Canceled"),
         ("refunded", "Refunded"),
     ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     subscription = models.ForeignKey(
         UserSubscription, on_delete=models.CASCADE, related_name="payments"
     )
@@ -153,11 +167,14 @@ class Payment(models.Model):
     @staticmethod
     def update_from_domain(payment: domain_models.Payment):
         payment_django, _ = Payment.objects.get_or_create(
-            subscription_id=payment.subscription_id,
-            payment_method_id=payment.payment_method_id,
-            date=payment.date,
+            id=payment.id,
+            defaults=dict(
+                subscription_id=payment.subscription_id,
+                payment_method_id=payment.payment_method_id,
+                amount=Decimal(payment.amount),
+                date=payment.date,
+            ),
         )
 
-        payment_django.amount = payment.amount
         payment_django.status = payment.status.value
         payment_django.save()
