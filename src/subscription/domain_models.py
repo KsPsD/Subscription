@@ -1,10 +1,8 @@
+import json
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import date, datetime
 from enum import Enum
-from typing import Optional
-
-from subscription import models
 
 
 class PlanName(str, Enum):
@@ -49,6 +47,12 @@ class SubscriptionPlan:
     duration_days: int
     id: uuid.UUID = field(default_factory=uuid.uuid4)
 
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
 
 @dataclass
 class UserSubscription:
@@ -59,12 +63,24 @@ class UserSubscription:
     status: SubscriptionStatus
     id: uuid.UUID = field(default_factory=uuid.uuid4)
 
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
+
 
 @dataclass
 class PaymentMethod:
     method_type: PaymentMethodType
     details: dict
     id: uuid.UUID = field(default_factory=uuid.uuid4)
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
 
 
 @dataclass
@@ -75,3 +91,16 @@ class Payment:
     date: datetime
     status: PaymentStatus
     id: uuid.UUID = field(default_factory=uuid.uuid4)
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
+
+
+@dataclass
+class Card:
+    card_number: str
+    card_expiry: str
+    card_cvc: str
