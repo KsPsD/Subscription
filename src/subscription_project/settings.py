@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "subscription.apps.SubscriptionConfig",
     "rest_framework",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
