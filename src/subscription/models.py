@@ -36,6 +36,7 @@ class SubscriptionPlan(models.Model):
 
     def to_domain(self) -> domain_models.SubscriptionPlan:
         return domain_models.SubscriptionPlan(
+            id=self.id,
             name=domain_models.PlanName(self.name),
             price=float(self.price),
             payment_cycle=domain_models.PaymentCycle(self.payment_cycle),
@@ -46,12 +47,15 @@ class SubscriptionPlan(models.Model):
     @staticmethod
     def update_from_domain(plan: domain_models.SubscriptionPlan):
         plan_django, _ = SubscriptionPlan.objects.get_or_create(
-            id=plan.id, defaults=dict(name=plan.name.value)
+            id=plan.id,
+            defaults=dict(
+                name=plan.name.value,
+                price=Decimal(plan.price),
+                payment_cycle=plan.payment_cycle.value,
+                description=plan.description,
+                duration=timedelta(days=plan.duration_days),
+            ),
         )
-        plan_django.price = Decimal(plan.price)
-        plan_django.payment_cycle = plan.payment_cycle.value
-        plan_django.description = plan.description
-        plan_django.duration = timedelta(days=plan.duration_days)
         plan_django.save()
 
 
@@ -79,6 +83,7 @@ class UserSubscription(models.Model):
 
     def to_domain(self) -> domain_models.UserSubscription:
         return domain_models.UserSubscription(
+            id=self.id,
             user_id=self.user.id,
             plan_id=self.plan.id,
             start_date=self.start_date,
@@ -113,20 +118,24 @@ class PaymentMethod(models.Model):
 
     def to_domain(self) -> domain_models.PaymentMethod:
         return domain_models.PaymentMethod(
+            id=self.id,
             method_type=domain_models.PaymentMethodType(self.method_type),
             details=self.details,
         )
 
     @staticmethod
     def update_from_domain(payment_method: domain_models.PaymentMethod):
-        payment_method_django, _ = PaymentMethod.objects.get_or_create(
+        payment_method_django, created = PaymentMethod.objects.get_or_create(
             id=payment_method.id,
             defaults=dict(
                 method_type=payment_method.method_type.value,
                 details=payment_method.details,
             ),
         )
-        payment_method_django.save()
+        if not created:
+            payment_method_django.method_type = payment_method.method_type.value
+            payment_method_django.details = payment_method.details
+            payment_method_django.save()
 
 
 class Payment(models.Model):
@@ -157,6 +166,7 @@ class Payment(models.Model):
 
     def to_domain(self) -> domain_models.Payment:
         return domain_models.Payment(
+            id=self.id,
             subscription_id=self.subscription.id,
             payment_method_id=self.payment_method.id,
             amount=float(self.amount),
