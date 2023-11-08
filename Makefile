@@ -28,6 +28,8 @@ create_superuser:
 	@echo "Creating superuser..."
 	$(PIPENV_RUN) python $(MANAGE_PY) shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'password') if not User.objects.filter(username='admin').exists() else print('Superuser already exists.')"
 
+show_urls:
+	$(PIPENV_RUN) python $(MANAGE_PY) show_urls
 
 # Docker
 docker-build:
