@@ -88,7 +88,7 @@ class DjangoUserSubscriptionRepositoryTest(TestCase):
         self.domain_user_subscription.status = SubscriptionStatus.EXPIRED
         self.repository.update(self.domain_user_subscription)
         updated_subscription = UserSubscription.objects.get(
-            user=self.user, plan=self.plan
+            id=self.domain_user_subscription.id
         )
         self.assertEqual(updated_subscription.status, SubscriptionStatus.EXPIRED.value)
 
@@ -158,9 +158,7 @@ class DjangoPaymentRepositoryTest(TestCase):
         # Test updating an existing payment
         self.domian_payment.status = PaymentStatus.PENDING
         self.payments.update(self.domian_payment)
-        updated_payment = Payment.objects.get(
-            subscription=self.user_subscription, payment_method=self.payment_method
-        )
+        updated_payment = Payment.objects.get(id=self.domian_payment.id)
         self.assertEqual(updated_payment.status, PaymentStatus.PENDING.value)
 
     def test_update_payment_method(self):
@@ -170,7 +168,7 @@ class DjangoPaymentRepositoryTest(TestCase):
         self.payment_methods.update(self.domian_payment_method)
 
         updated_payment_method = PaymentMethod.objects.get(
-            method_type=PaymentMethodType.CREDIT_CARD.value
+            id=self.domian_payment_method.id
         )
         self.assertEqual(
             updated_payment_method.details, {"card_number": "1234-1234-1234-1234"}
