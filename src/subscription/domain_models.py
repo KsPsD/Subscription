@@ -21,6 +21,7 @@ class SubscriptionStatus(str, Enum):
     ACTIVE = "active"
     EXPIRED = "expired"
     PENDING = "pending"
+    CANCELED = "canceled"
 
 
 class PaymentMethodType(str, Enum):

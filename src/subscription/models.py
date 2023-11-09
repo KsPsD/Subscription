@@ -1,6 +1,7 @@
 import uuid
 from datetime import timedelta
 from decimal import Decimal
+from typing import Optional
 
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
@@ -64,6 +65,7 @@ class UserSubscription(models.Model):
         ("active", _("Active")),
         ("expired", _("Expired")),
         ("pending", _("Pending")),
+        ("canceled", _("Canceled")),
         # 기타 필요한 상태를 추가할 수 있습니다.
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
