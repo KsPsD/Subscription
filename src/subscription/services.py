@@ -1,6 +1,6 @@
 import json
 from dataclasses import asdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from subscription.domain_models import (
     Card,
@@ -71,4 +71,62 @@ class SubscriptionService:
             return {
                 "success": True,
                 "message": f"User {user_id} has subscribed to {plan_name} plan successfully.",
+            }
+
+    def cancel_subscription(
+        self,
+        user_id: int,
+    ):
+        with self.uow:
+            try:
+                user_subscription = (
+                    self.uow.user_subscriptions.get_active_subscription_by_user_id(
+                        user_id
+                    )
+                )
+            except ValueError as e:
+                raise e
+
+            user_subscription.status = SubscriptionStatus.CANCELED
+            self.uow.user_subscriptions.update(user_subscription)
+            return {
+                "success": True,
+                "message": f"User {user_id} has cancelled subscription successfully.",
+            }
+
+    def renew_subscription(self, user_id: int):
+        with self.uow:
+            current_subscription = (
+                self.uow.user_subscriptions.get_active_subscription_by_user_id(user_id)
+            )
+            if (
+                current_subscription
+                and current_subscription.end_date > datetime.today().date()
+            ):
+                raise ValueError(
+                    "Subscription has not expired yet and cannot be renewed."
+                )
+
+            previous_plan = self.uow.subscription_plans.get_by_id(
+                current_subscription.plan_id
+            )
+
+            if current_subscription:
+                current_subscription.status = SubscriptionStatus.EXPIRED
+                self.uow.user_subscriptions.update(current_subscription)
+
+            new_subscription = UserSubscription(
+                user_id=user_id,
+                plan_id=previous_plan.id,
+                start_date=datetime.today(),
+                end_date=datetime.today() + timedelta(days=previous_plan.duration_days),
+                status=SubscriptionStatus.ACTIVE,
+            )
+            self.uow.user_subscriptions.add(new_subscription)
+
+            # NOTE: 결제 정보 생성 및 추가하는 로직 (여기서는 생략)
+
+            return {
+                "success": True,
+                "message": "Subscription renewed successfully.",
             }
