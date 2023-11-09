@@ -31,3 +31,31 @@ class SubscriptionViewSet(viewsets.ViewSet):
             )
 
         return Response(result, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"], url_path="cancel")
+    def cancel(self, request):
+        try:
+            result = self.subscription_service.cancel_subscription(
+                user_id=request.user.id
+            )
+        except ValueError as e:
+            return Response(
+                {"success": False, "message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(result, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"], url_path="renew")
+    def renew(self, request):
+        try:
+            result = self.subscription_service.renew_subscription(
+                user_id=request.user.id
+            )
+        except ValueError as e:
+            return Response(
+                {"success": False, "message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(result, status=status.HTTP_200_OK)
