@@ -39,7 +39,7 @@ class TestDjangoUnitOfWork(TestCase):
         uow = DjangoUnitOfWork()
         with uow:
             subscription = DomainUserSubscription(
-                user_id=1,
+                user_id=self.user.id,
                 plan_id=self.plan.id,
                 start_date=date.today(),
                 end_date=date.today() + timedelta(days=self.plan.duration.days),
