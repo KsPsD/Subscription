@@ -55,6 +55,22 @@ class DjangoUserSubscriptionRepository(
     def update(self, subscription: domain_models.UserSubscription):
         models.UserSubscription.update_from_domain(subscription)
 
+    def get_active_subscription_by_user_id(
+        self, user_id: int
+    ) -> Optional[domain_models.UserSubscription]:
+        try:
+            active_subscription = (
+                models.UserSubscription.objects.filter(
+                    user_id=user_id,
+                    status=domain_models.SubscriptionStatus.ACTIVE.value,
+                )
+                .order_by("-start_date")
+                .first()
+            )
+            return active_subscription.to_domain() if active_subscription else None
+        except models.UserSubscription.DoesNotExist:
+            return None
+
 
 class DjangoSubscriptionPlanRepository(
     AbstractRepository[domain_models.SubscriptionPlan]
@@ -68,6 +84,13 @@ class DjangoSubscriptionPlanRepository(
             return plan.to_domain()
         except models.SubscriptionPlan.DoesNotExist:
             raise ValueError(f"Plan {name} does not exist")
+
+    def get_by_id(self, id: int) -> domain_models.SubscriptionPlan:
+        try:
+            plan = models.SubscriptionPlan.objects.get(id=id)
+            return plan.to_domain()
+        except models.SubscriptionPlan.DoesNotExist:
+            raise ValueError(f"Plan {id} does not exist")
 
     def list(self) -> List[domain_models.SubscriptionPlan]:
         return [

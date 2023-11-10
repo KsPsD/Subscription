@@ -10,24 +10,41 @@ class FakeRepository:
 
     def get(self, identifier):
         try:
-            return next(item for item in self._items if self.matches(item, identifier))
+            return next(
+                item for item in self._items if self.matches(item, "id", identifier)
+            )
         except StopIteration:
             raise ValueError(f"Item with identifier {identifier} not found")
 
     def list(self):
         return list(self._items)
 
-    def matches(self, item, identifier):
-        return item.id == identifier
+    def matches(self, item, fields, identifier):
+        return item.__dict__[fields] == identifier
 
 
 class FakeUserSubscriptionRepository(FakeRepository):
-    pass
+    def get_active_subscription_by_user_id(self, user_id: int):
+        try:
+            return next(
+                item
+                for item in self._items
+                if item.user_id == user_id and item.status == "active"
+            )
+        except StopIteration:
+            raise ValueError(f"Active subscription for user {user_id} not found")
+
+    def update(self, item):
+        pass
 
 
 class FakeSubscriptionPlanRepository(FakeRepository):
-    def matches(self, item, identifier):
-        return item.name == identifier
+    def matches(self, item, fields, identifier):
+        return super().matches(item, "name", identifier)
+
+    def get_by_id(self, id: int):
+        self.matches = lambda item, fields, identifier: item.id == identifier
+        return super().get(id)
 
 
 class FakePaymentRepository(FakeRepository):

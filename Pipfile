@@ -11,6 +11,9 @@ python-dotenv = "*"
 dj-database-url = "*"
 psycopg2-binary = "*"
 django-extensions = "*"
+freezegun = "*"
+tenacity = "*"
+coverage = "*"
 
 [dev-packages]
 

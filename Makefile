@@ -1,10 +1,10 @@
 PIPENV_RUN = pipenv run
 BASE_DIR = ./src
 MANAGE_PY = $(BASE_DIR)/manage.py
-DOCKER_COMPOSE = docker-compose
+DOCKER_COMPOSE = docker-compose 
 APP_NAME = subscription
 
-.PHONY: test clean migrate migrations run createsuperuser
+.PHONY: test clean migrate migrations run createsuperuser install-deps docker-build docker-up docker-down test-coverage
 
 migrations:
 	$(PIPENV_RUN) python $(MANAGE_PY) makemigrations
@@ -17,6 +17,13 @@ showmigrations:
 
 test:
 	cd $(BASE_DIR) && $(PIPENV_RUN) python manage.py test $(target)
+
+test-coverage:
+	cd $(BASE_DIR) && $(PIPENV_RUN) coverage run --source='.' manage.py test $(target)
+	cd $(BASE_DIR) && $(PIPENV_RUN) coverage xml
+
+install-deps:
+	$(PIPENV_RUN) pipenv install --dev --deploy --ignore-pipfile
 
 clean:
 	$(PIPENV_RUN) python $(MANAGE_PY) flush --no-input

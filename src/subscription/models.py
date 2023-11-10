@@ -1,6 +1,7 @@
 import uuid
 from datetime import timedelta
 from decimal import Decimal
+from typing import Optional
 
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
@@ -64,6 +65,7 @@ class UserSubscription(models.Model):
         ("active", _("Active")),
         ("expired", _("Expired")),
         ("pending", _("Pending")),
+        ("canceled", _("Canceled")),
         # 기타 필요한 상태를 추가할 수 있습니다.
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -85,7 +87,7 @@ class UserSubscription(models.Model):
         return domain_models.UserSubscription(
             id=self.id,
             user_id=self.user.id,
-            plan_id=self.plan.id,
+            plan=self.plan.to_domain(),
             start_date=self.start_date,
             end_date=self.end_date,
             status=domain_models.SubscriptionStatus(self.status),
@@ -97,7 +99,7 @@ class UserSubscription(models.Model):
             id=subscription.id,
             defaults=dict(
                 user_id=subscription.user_id,
-                plan_id=subscription.plan_id,
+                plan_id=subscription.plan.id,
                 start_date=subscription.start_date,
                 end_date=subscription.end_date,
             ),
@@ -167,8 +169,8 @@ class Payment(models.Model):
     def to_domain(self) -> domain_models.Payment:
         return domain_models.Payment(
             id=self.id,
-            subscription_id=self.subscription.id,
-            payment_method_id=self.payment_method.id,
+            subscription=self.subscription.to_domain(),
+            payment_method=self.payment_method.to_domain(),
             amount=float(self.amount),
             date=self.date,
             status=domain_models.PaymentStatus(self.status),
@@ -179,8 +181,8 @@ class Payment(models.Model):
         payment_django, _ = Payment.objects.get_or_create(
             id=payment.id,
             defaults=dict(
-                subscription_id=payment.subscription_id,
-                payment_method_id=payment.payment_method_id,
+                subscription_id=payment.subscription.id,
+                payment_method_id=payment.payment_method.id,
                 amount=Decimal(payment.amount),
                 date=payment.date,
             ),
