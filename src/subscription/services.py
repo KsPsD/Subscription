@@ -1,6 +1,9 @@
 import json
+import random
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
+
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from subscription.domain_models import (
     Card,
@@ -19,6 +22,34 @@ from subscription.unit_of_work import DjangoUnitOfWork
 class SubscriptionService:
     def __init__(self, unit_of_work: DjangoUnitOfWork):
         self.uow = unit_of_work
+
+    # FIXME: 테스트 목적으로 임시로 추가한 메서드
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
+    def _process_payment(self, user_id: int, amount: float):
+        payment_method = PaymentMethod(
+            method_type=PaymentMethodType.CREDIT_CARD,
+            details={
+                "card_number": "1234-5678-9012-3456",
+                "expiry": "12/24",
+                "cvc": "123",
+            },
+        )
+
+        payment_success = random.choice([True, False])
+
+        payment = Payment(
+            subscription=self.uow.user_subscriptions.get_active_subscription_by_user_id(
+                user_id
+            ),
+            payment_method=payment_method,
+            amount=amount,
+            date=datetime.now(),
+            status=PaymentStatus.SUCCESS if payment_success else PaymentStatus.FAILED,
+        )
+
+        self.uow.payments.add(payment)
+
+        return payment_success, payment
 
     def subscribe_user_to_plan(
         self, user_id: int, plan_name: str, payment_details: dict
@@ -107,6 +138,15 @@ class SubscriptionService:
                 raise ValueError(
                     "Subscription has not expired yet and cannot be renewed."
                 )
+
+            payment_success, payment_details = self._process_payment(
+                user_id, current_subscription.plan.price
+            )
+            if not payment_success:
+                return {
+                    "success": False,
+                    "message": "Failed to process payment for subscription renewal.",
+                }
 
             if current_subscription:
                 current_subscription.status = SubscriptionStatus.EXPIRED
