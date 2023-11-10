@@ -118,3 +118,67 @@ class SubscribeUserToPlanTestCase(TestCase):
 
         self.assertTrue(response["success"])
         self.assertTrue(self.uow.committed)
+
+    def test_change_subscription_plan_with_success(self):
+        self.uow.subscription_plans.add(self.plan)
+        self.uow.subscription_plans.add(
+            SubscriptionPlan(
+                name="Premium",
+                price=20.00,
+                payment_cycle="monthly",
+                description="Premium Plan",
+                duration_days=30,
+            )
+        )
+        self.uow.user_subscriptions.add(
+            UserSubscription(
+                user_id=self.user_id,
+                plan=self.plan,
+                start_date=date.today(),
+                end_date=date.today(),
+                status=SubscriptionStatus.ACTIVE,
+            )
+        )
+
+        with mock.patch.object(
+            self.service, "_process_payment", return_value=(True, {})
+        ) as mock_method:
+            response = self.service.change_subscription_plan(
+                user_id=self.user_id, new_plan_name="Premium"
+            )
+
+            self.assertTrue(response["success"])
+            self.assertTrue(self.uow.committed)
+
+    def test_change_subscription_plan_with_failure(self):
+        self.uow.subscription_plans.add(self.plan)
+        self.uow.subscription_plans.add(
+            SubscriptionPlan(
+                name="Premium",
+                price=20.00,
+                payment_cycle="monthly",
+                description="Premium Plan",
+                duration_days=30,
+            )
+        )
+        self.uow.user_subscriptions.add(
+            UserSubscription(
+                user_id=self.user_id,
+                plan=self.plan,
+                start_date=date.today(),
+                end_date=date.today(),
+                status=SubscriptionStatus.ACTIVE,
+            )
+        )
+
+        with mock.patch.object(
+            self.service, "_process_payment", return_value=(False, {})
+        ) as mock_method:
+            response = self.service.change_subscription_plan(
+                user_id=self.user_id, new_plan_name="Premium"
+            )
+
+            self.assertFalse(response["success"])
+            self.assertEqual(
+                response["message"], "Failed to process payment for plan change."
+            )
