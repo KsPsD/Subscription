@@ -19,7 +19,8 @@ test:
 	cd $(BASE_DIR) && $(PIPENV_RUN) python manage.py test $(target)
 
 test-coverage:
-	cd $(BASE_DIR) && $(PIPENV_RUN) pytest -s -v --cov --cov-report=xml:./coverage.xml
+	cd $(BASE_DIR) && $(PIPENV_RUN) coverage run --source='.' manage.py test $(target)
+    cd $(BASE_DIR) && $(PIPENV_RUN) coverage xml
 
 install-deps:
 	$(PIPENV_RUN) pipenv install --dev --deploy --ignore-pipfile

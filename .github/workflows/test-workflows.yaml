@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: "postgres://postgres:DO_NOT_USE_THIS_PASSWORD_IN_PRODUCTION@db:5432/test_db"
+      DATABASE_URL: "postgres://postgres:DO_NOT_USE_THIS_PASSWORD_IN_PRODUCTION@localhost:5432/test_db"
       APP_ENV: "test"
 
     steps:
