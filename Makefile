@@ -20,7 +20,7 @@ test:
 
 test-coverage:
 	cd $(BASE_DIR) && $(PIPENV_RUN) coverage run --source='.' manage.py test $(target)
-    cd $(BASE_DIR) && $(PIPENV_RUN) coverage xml
+	cd $(BASE_DIR) && $(PIPENV_RUN) coverage xml
 
 install-deps:
 	$(PIPENV_RUN) pipenv install --dev --deploy --ignore-pipfile
