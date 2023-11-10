@@ -58,7 +58,7 @@ class SubscriptionPlan:
 @dataclass
 class UserSubscription:
     user_id: int
-    plan_id: int
+    plan: SubscriptionPlan
     start_date: date
     end_date: date
     status: SubscriptionStatus
@@ -86,8 +86,8 @@ class PaymentMethod:
 
 @dataclass
 class Payment:
-    subscription_id: int
-    payment_method_id: int
+    subscription: UserSubscription
+    payment_method: PaymentMethod
     amount: float
     date: datetime
     status: PaymentStatus

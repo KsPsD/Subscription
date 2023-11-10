@@ -8,6 +8,7 @@ from subscription.domain_models import (
     PaymentMethod,
     PaymentMethodType,
     PaymentStatus,
+    SubscriptionPlan,
     SubscriptionStatus,
     UserSubscription,
 )
@@ -31,7 +32,7 @@ class SubscriptionService:
             today = date.today()
             user_subscription = UserSubscription(
                 user_id=user_id,
-                plan_id=plan.id,
+                plan=plan,
                 start_date=today,
                 end_date=today + timedelta(days=plan.duration_days),
                 status=SubscriptionStatus.ACTIVE,
@@ -60,8 +61,8 @@ class SubscriptionService:
             self.uow.payment_methods.add(payment_method)
 
             payment = Payment(
-                subscription_id=user_subscription.id,
-                payment_method_id=payment_method.id,
+                subscription=user_subscription,
+                payment_method=payment_method,
                 amount=plan.price,
                 date=today,
                 status=PaymentStatus.SUCCESS,
@@ -107,19 +108,16 @@ class SubscriptionService:
                     "Subscription has not expired yet and cannot be renewed."
                 )
 
-            previous_plan = self.uow.subscription_plans.get_by_id(
-                current_subscription.plan_id
-            )
-
             if current_subscription:
                 current_subscription.status = SubscriptionStatus.EXPIRED
                 self.uow.user_subscriptions.update(current_subscription)
 
             new_subscription = UserSubscription(
                 user_id=user_id,
-                plan_id=previous_plan.id,
+                plan=current_subscription.plan,
                 start_date=datetime.today(),
-                end_date=datetime.today() + timedelta(days=previous_plan.duration_days),
+                end_date=datetime.today()
+                + timedelta(days=current_subscription.plan.duration_days),
                 status=SubscriptionStatus.ACTIVE,
             )
             self.uow.user_subscriptions.add(new_subscription)
