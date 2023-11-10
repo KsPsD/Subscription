@@ -13,6 +13,7 @@ psycopg2-binary = "*"
 django-extensions = "*"
 freezegun = "*"
 tenacity = "*"
+coverage = "*"
 
 [dev-packages]
 
