@@ -34,6 +34,7 @@ class SubscriptionService:
                 "cvc": "123",
             },
         )
+        self.uow.payment_methods.add(payment_method)
 
         payment_success = random.choice([True, False])
 
