@@ -59,7 +59,7 @@ class DjangoUserSubscriptionRepositoryTest(TestCase):
         )
         new_domain_subscription = DomainUserSubscription(
             user_id=self.user.id,
-            plan_id=new_plan.id,
+            plan=new_plan,
             start_date=date.today(),
             end_date=date.today(),
             status=SubscriptionStatus.ACTIVE,
@@ -115,7 +115,7 @@ class DjangoPaymentRepositoryTest(TestCase):
 
         self.domain_user_subscription = DomainUserSubscription(
             user_id=self.user.id,
-            plan_id=self.plan.id,
+            plan=self.plan,
             start_date=date.today(),
             end_date=date.today(),
             status=SubscriptionStatus.ACTIVE,

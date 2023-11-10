@@ -24,7 +24,13 @@ class SubscribeUserToPlanTestCase(TestCase):
             "expiration_date": "12/25",
             "cvc": "123",
         }
-
+        self.plan = SubscriptionPlan(
+            name=self.plan_name,
+            price=10.00,
+            payment_cycle="monthly",
+            description="Basic Plan",
+            duration_days=30,
+        )
         self.uow = FakeUnitOfWork()
         self.service = SubscriptionService(self.uow)
 
@@ -71,7 +77,7 @@ class SubscribeUserToPlanTestCase(TestCase):
         self.uow.user_subscriptions.add(
             UserSubscription(
                 user_id=self.user_id,
-                plan_id=1,
+                plan=self.plan,
                 start_date=date.today(),
                 end_date=date.today(),
                 status=SubscriptionStatus.ACTIVE,
@@ -97,20 +103,11 @@ class SubscribeUserToPlanTestCase(TestCase):
             self.assertTrue(self.uow.rolled_back)
 
     def test_renew_subscription_success(self):
-        self.uow.subscription_plans.add(
-            SubscriptionPlan(
-                id=1,
-                name=self.plan_name,
-                price=10.00,
-                payment_cycle="monthly",
-                description="Basic Plan",
-                duration_days=30,
-            )
-        )
+        self.uow.subscription_plans.add(self.plan)
         self.uow.user_subscriptions.add(
             UserSubscription(
                 user_id=self.user_id,
-                plan_id=1,
+                plan=self.plan,
                 start_date=date.today(),
                 end_date=date.today(),
                 status=SubscriptionStatus.ACTIVE,

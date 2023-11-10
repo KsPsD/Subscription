@@ -40,7 +40,7 @@ class TestDjangoUnitOfWork(TestCase):
         with uow:
             subscription = DomainUserSubscription(
                 user_id=self.user.id,
-                plan_id=self.plan.id,
+                plan=self.plan,
                 start_date=date.today(),
                 end_date=date.today() + timedelta(days=self.plan.duration.days),
                 status=SubscriptionStatus.ACTIVE,
@@ -56,7 +56,7 @@ class TestDjangoUnitOfWork(TestCase):
             )
             self.assertIsNotNone(saved_subscription)
             self.assertEqual(saved_subscription.user_id, subscription.user_id)
-            self.assertEqual(saved_subscription.plan_id, subscription.plan_id)
+            self.assertEqual(saved_subscription.plan.id, subscription.plan.id)
             self.assertEqual(saved_subscription.status, subscription.status)
 
             uow.commit()
@@ -67,7 +67,7 @@ class TestDjangoUnitOfWork(TestCase):
             with uow:
                 subscription = DomainUserSubscription(
                     user_id=1,
-                    plan_id=self.plan.id,
+                    plan=self.plan,
                     start_date=date.today(),
                     end_date=date.today() + timedelta(days=self.plan.duration.days),
                     status=SubscriptionStatus.ACTIVE,
