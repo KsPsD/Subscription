@@ -114,10 +114,13 @@ class SubscribeUserToPlanTestCase(TestCase):
             )
         )
 
-        response = self.service.renew_subscription(user_id=self.user_id)
+        with mock.patch.object(
+            self.service, "_process_payment", return_value=(True, {})
+        ) as mock_method:
+            response = self.service.renew_subscription(user_id=self.user_id)
 
-        self.assertTrue(response["success"])
-        self.assertTrue(self.uow.committed)
+            self.assertTrue(response["success"])
+            self.assertTrue(self.uow.committed)
 
     def test_change_subscription_plan_with_success(self):
         self.uow.subscription_plans.add(self.plan)
