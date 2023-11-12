@@ -1,7 +1,7 @@
 import json
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from enum import Enum
 
 from subscription.domain.events import PaymentFailed
@@ -65,6 +65,18 @@ class SubscriptionPlan:
     def __hash__(self):
         return hash(self.name)
 
+    def create_user_subscription(
+        self, user_id: int, start_date: date, duration_days: int
+    ) -> "UserSubscription":
+        end_date = start_date + timedelta(days=duration_days)
+        return UserSubscription(
+            user_id=user_id,
+            plan=self,
+            start_date=start_date,
+            end_date=end_date,
+            status=SubscriptionStatus.ACTIVE,
+        )
+
 
 class UserSubscription:
     def __init__(
@@ -89,6 +101,12 @@ class UserSubscription:
 
     def __hash__(self):
         return hash(self.id)
+
+    def renew(self) -> None:
+        if self.status == SubscriptionStatus.ACTIVE and self.end_date > date.today():
+            raise ValueError("Subscription is already active and cannot be renewed.")
+        self.end_date = date.today() + timedelta(days=self.plan.duration_days)
+        self.status = SubscriptionStatus.ACTIVE
 
 
 class PaymentMethod:

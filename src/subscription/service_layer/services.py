@@ -60,17 +60,14 @@ class SubscriptionService:
     ):
         with self.uow:
             try:
-                plan = self.uow.subscription_plans.get(plan_name)
+                plan: SubscriptionPlan | None = self.uow.subscription_plans.get(
+                    plan_name
+                )
             except ValueError as e:
                 raise e
 
-            today = date.today()
-            user_subscription = UserSubscription(
-                user_id=user_id,
-                plan=plan,
-                start_date=today,
-                end_date=today + timedelta(days=plan.duration_days),
-                status=SubscriptionStatus.ACTIVE,
+            user_subscription = plan.create_user_subscription(
+                user_id, date.today(), plan.duration_days
             )
             self.uow.user_subscriptions.add(user_subscription)
 
@@ -99,7 +96,7 @@ class SubscriptionService:
                 subscription=user_subscription,
                 payment_method=payment_method,
                 amount=plan.price,
-                date=today,
+                date=date.today(),
                 status=PaymentStatus.SUCCESS,
             )
             self.uow.payments.add(payment)
@@ -132,16 +129,10 @@ class SubscriptionService:
 
     def renew_subscription(self, user_id: int):
         with self.uow:
-            current_subscription = (
+            current_subscription: UserSubscription = (
                 self.uow.user_subscriptions.get_active_subscription_by_user_id(user_id)
             )
-            if (
-                current_subscription
-                and current_subscription.end_date > datetime.today().date()
-            ):
-                raise ValueError(
-                    "Subscription has not expired yet and cannot be renewed."
-                )
+            current_subscription.renew()
 
             payment_success, payment_details = self._process_payment(
                 user_id, current_subscription.plan.price
