@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta
 
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from subscription.domain_models import (
+from subscription.domain.domain_models import (
     Card,
     Payment,
     PaymentMethod,
@@ -47,6 +47,9 @@ class SubscriptionService:
             date=datetime.now(),
             status=PaymentStatus.SUCCESS if payment_success else PaymentStatus.FAILED,
         )
+
+        if not payment_success:
+            payment.mark_failed("Random failure reason or specific error message")
 
         self.uow.payments.add(payment)
 

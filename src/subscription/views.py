@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from subscription.serializers import SubscriptionRequestSerializer
-from subscription.services import SubscriptionService
+from subscription.service_layer.services import SubscriptionService
 from subscription.unit_of_work import DjangoUnitOfWork
 
 
