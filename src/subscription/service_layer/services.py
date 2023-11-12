@@ -16,7 +16,7 @@ from subscription.domain.domain_models import (
     UserSubscription,
 )
 from subscription.serializers import CardSerializer
-from subscription.unit_of_work import DjangoUnitOfWork
+from subscription.service_layer.unit_of_work import DjangoUnitOfWork
 
 
 class SubscriptionService:

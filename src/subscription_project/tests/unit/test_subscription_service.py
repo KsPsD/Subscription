@@ -10,7 +10,7 @@ from subscription.domain.domain_models import (
     UserSubscription,
 )
 from subscription.service_layer.services import SubscriptionService
-from subscription.unit_of_work import DjangoUnitOfWork
+from subscription.service_layer.unit_of_work import DjangoUnitOfWork
 from subscription_project.tests.unit.fake import FakeUnitOfWork
 
 

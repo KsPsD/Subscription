@@ -1,4 +1,4 @@
-from subscription.unit_of_work import DjangoUnitOfWork
+from subscription.service_layer.unit_of_work import DjangoUnitOfWork
 
 
 class FakeRepository:

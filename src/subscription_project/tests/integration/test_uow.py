@@ -8,7 +8,7 @@ from subscription.domain.domain_models import PaymentCycle, PlanName
 from subscription.domain.domain_models import SubscriptionPlan as DomainSubscriptionPlan
 from subscription.domain.domain_models import SubscriptionStatus
 from subscription.domain.domain_models import UserSubscription as DomainUserSubscription
-from subscription.unit_of_work import DjangoUnitOfWork
+from subscription.service_layer.unit_of_work import DjangoUnitOfWork
 
 
 class TestDjangoUnitOfWork(TestCase):
