@@ -9,6 +9,7 @@ from subscription.domain.domain_models import (
     SubscriptionStatus,
     UserSubscription,
 )
+from subscription.domain.events import PaymentFailed
 from subscription.service_layer.services import SubscriptionService
 from subscription.service_layer.unit_of_work import DjangoUnitOfWork
 from subscription_project.tests.unit.fake import FakeUnitOfWork
@@ -185,3 +186,24 @@ class SubscribeUserToPlanTestCase(TestCase):
             self.assertEqual(
                 response["message"], "Failed to process payment for plan change."
             )
+
+    @mock.patch("random.choice")
+    def test_process_payment_with_mark_failed(self, mock_random_choice):
+        self.uow.subscription_plans.add(self.plan)
+        self.uow.user_subscriptions.add(
+            UserSubscription(
+                user_id=self.user_id,
+                plan=self.plan,
+                start_date=date.today(),
+                end_date=date.today(),
+                status=SubscriptionStatus.ACTIVE,
+            )
+        )
+        mock_random_choice.return_value = False
+
+        response = self.service._process_payment(
+            user_id=self.user_id,
+            amount=10.00,
+        )
+        self.assertFalse(response[0])
+        self.assertEqual(type(response[1].events[0]), PaymentFailed)
