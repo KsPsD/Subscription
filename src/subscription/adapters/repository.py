@@ -1,25 +1,56 @@
 # repository.py
 
-from typing import Generic, List, Optional, TypeVar
+from typing import Generic, Iterable, List, Optional, Protocol, Set, TypeVar
 
-import subscription.domain_models as domain_models
-import subscription.models as models
+import subscription.adapters.models as models
+import subscription.domain.domain_models as domain_models
 
 T = TypeVar("T")
 
 
-class AbstractRepository(Generic[T]):
+class AbstractRepository(Protocol, Generic[T]):
     def add(self, obj: T):
-        raise NotImplementedError
+        ...
 
     def get(self, id: int) -> T:
-        raise NotImplementedError
+        ...
 
     def list(self) -> List[T]:
-        raise NotImplementedError
+        ...
 
     def update(self, obj: T):
-        raise NotImplementedError
+        ...
+
+
+class TrackingRepository:
+    seen: Set[T]
+
+    def __init__(self, repo: AbstractRepository):
+        self.seen = set()  # type: Set[domain_model.T]
+        self._repo = repo
+
+    def add(self, obj: T):
+        self._repo.add(obj)
+        self.seen.add(obj)
+
+    def get(self, id) -> Optional[T]:
+        obj = self._repo.get(id)
+        if obj:
+            self.seen.add(obj)
+        return obj
+
+    # NOTE: 이 메서드는 래핑된 리포지토리의 get,add 이외의 메서드가 호출될 때 사용된다.
+    def __getattr__(self, name: str):
+        def wrapper(*args, **kwargs):
+            result = getattr(self._repo, name)(*args, **kwargs)
+            if isinstance(result, Iterable) and not isinstance(result, str):
+                for item in result:
+                    self.seen.add(item)
+            else:
+                self.seen.add(result)
+            return result
+
+        return wrapper
 
 
 class DjangoUserSubscriptionRepository(
