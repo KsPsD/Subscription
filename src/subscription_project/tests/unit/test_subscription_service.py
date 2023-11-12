@@ -3,13 +3,13 @@ from unittest import mock
 
 from django.test import TestCase
 
-from subscription.domain_models import (
+from subscription.domain.domain_models import (
     PaymentMethodType,
     SubscriptionPlan,
     SubscriptionStatus,
     UserSubscription,
 )
-from subscription.services import SubscriptionService
+from subscription.service_layer.services import SubscriptionService
 from subscription.unit_of_work import DjangoUnitOfWork
 from subscription_project.tests.unit.fake import FakeUnitOfWork
 

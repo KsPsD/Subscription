@@ -3,25 +3,25 @@ from datetime import date, timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from subscription.domain_models import (
+from subscription.adapters.models import (
+    Payment,
+    PaymentMethod,
+    SubscriptionPlan,
+    UserSubscription,
+)
+from subscription.adapters.repository import (
+    DjangoPaymentMethodRepository,
+    DjangoPaymentRepository,
+    DjangoUserSubscriptionRepository,
+)
+from subscription.domain.domain_models import (
     PaymentCycle,
     PaymentMethodType,
     PaymentStatus,
     PlanName,
     SubscriptionStatus,
 )
-from subscription.domain_models import UserSubscription as DomainUserSubscription
-from subscription.models import (
-    Payment,
-    PaymentMethod,
-    SubscriptionPlan,
-    UserSubscription,
-)
-from subscription.repository import (
-    DjangoPaymentMethodRepository,
-    DjangoPaymentRepository,
-    DjangoUserSubscriptionRepository,
-)
+from subscription.domain.domain_models import UserSubscription as DomainUserSubscription
 
 
 class DjangoUserSubscriptionRepositoryTest(TestCase):

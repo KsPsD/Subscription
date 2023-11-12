@@ -3,14 +3,13 @@ from datetime import date, timedelta
 from unittest import mock
 
 from django.contrib.auth.models import User
-from django.forms import ValidationError
 from django.urls import reverse
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from subscription.domain_models import PaymentCycle, PlanName, SubscriptionPlan
-from subscription.repository import DjangoSubscriptionPlanRepository
+from subscription.adapters.repository import DjangoSubscriptionPlanRepository
+from subscription.domain.domain_models import PaymentCycle, PlanName, SubscriptionPlan
 
 
 class SubscriptionViewSetTest(APITestCase):
@@ -166,7 +165,7 @@ class SubscriptionViewSetTest(APITestCase):
         )
 
         with mock.patch(
-            "subscription.services.SubscriptionService._process_payment",
+            "subscription.service_layer.services.SubscriptionService._process_payment",
             return_value=(True, {}),
         ) as mock_change_subscription_plan:
             url = reverse("subscription-change")
