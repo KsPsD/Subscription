@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import abc
-from contextlib import contextmanager
 
 from django.db import transaction
 
-from .repository import (
+from .adapters.repository import (
     DjangoPaymentMethodRepository,
     DjangoPaymentRepository,
     DjangoSubscriptionPlanRepository,
     DjangoUserSubscriptionRepository,
+    TrackingRepository,
 )
 
 
@@ -35,10 +35,10 @@ class AbstractUnitOfWork(abc.ABC):
 
 class DjangoUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
-        self.user_subscriptions = DjangoUserSubscriptionRepository()
-        self.subscription_plans = DjangoSubscriptionPlanRepository()
-        self.payments = DjangoPaymentRepository()
-        self.payment_methods = DjangoPaymentMethodRepository()
+        self.user_subscriptions = TrackingRepository(DjangoUserSubscriptionRepository())
+        self.subscription_plans = TrackingRepository(DjangoSubscriptionPlanRepository())
+        self.payments = TrackingRepository(DjangoPaymentRepository())
+        self.payment_methods = TrackingRepository(DjangoPaymentMethodRepository())
 
     def __enter__(self):
         self._transaction = transaction.atomic()
