@@ -136,9 +136,7 @@ class TestCreateSubscription(TestCase):
             )
         )
 
-        with mock.patch.object(
-            self.service, "process_payment", return_value=(True, {})
-        ) as mock_method:
+        with mock.patch("random.choice", return_value=True) as mock_method:
             results = message_bus.handle(
                 commands.RenewSubscription(
                     self.user_id,
@@ -171,7 +169,7 @@ class TestCreateSubscription(TestCase):
             )
         )
 
-        with mock.patch.object(random, "choice", return_value=True) as mock_method:
+        with mock.patch("random.choice", return_value=True) as mock_method:
             results = message_bus.handle(
                 commands.ChangeSubscriptionPlan(
                     self.user_id,
@@ -205,7 +203,7 @@ class TestCreateSubscription(TestCase):
             )
         )
 
-        with mock.patch.object(random, "choice", return_value=False) as mock_method:
+        with mock.patch("random.choice", return_value=False) as mock_method:
             results = message_bus.handle(
                 commands.ChangeSubscriptionPlan(
                     self.user_id,

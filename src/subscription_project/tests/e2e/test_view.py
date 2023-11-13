@@ -165,8 +165,8 @@ class SubscriptionViewSetTest(APITestCase):
         )
 
         with mock.patch(
-            "subscription.service_layer.services.SubscriptionService._process_payment",
-            return_value=(True, {}),
+            "random.choice",
+            return_value=True,
         ) as mock_change_subscription_plan:
             url = reverse("subscription-change")
             data = {"plan_name": "premium"}
