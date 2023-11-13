@@ -3,7 +3,7 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from subscription.domain_models import Card
+from subscription.domain.domain_models import Card
 
 
 class PaymentDetailsSerializer(serializers.Serializer):

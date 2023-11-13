@@ -1,4 +1,5 @@
-from subscription.unit_of_work import DjangoUnitOfWork
+from subscription.adapters.repository import TrackingRepository
+from subscription.service_layer.unit_of_work import DjangoUnitOfWork
 
 
 class FakeRepository:
@@ -57,10 +58,10 @@ class FakePaymentMethodRepository(FakeRepository):
 
 class FakeUnitOfWork(DjangoUnitOfWork):
     def __init__(self):
-        self.user_subscriptions = FakeUserSubscriptionRepository([])
-        self.subscription_plans = FakeSubscriptionPlanRepository([])
-        self.payments = FakePaymentRepository([])
-        self.payment_methods = FakePaymentMethodRepository([])
+        self.user_subscriptions = TrackingRepository(FakeUserSubscriptionRepository([]))
+        self.subscription_plans = TrackingRepository(FakeSubscriptionPlanRepository([]))
+        self.payments = TrackingRepository(FakePaymentRepository([]))
+        self.payment_methods = TrackingRepository(FakePaymentMethodRepository([]))
         self.committed = False
         self.rolled_back = False
 
@@ -80,6 +81,3 @@ class FakeUnitOfWork(DjangoUnitOfWork):
 
     def rollback(self):
         self.rolled_back = True
-
-    def collect_new_events(self):
-        pass

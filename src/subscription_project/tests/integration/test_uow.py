@@ -3,15 +3,12 @@ from datetime import date, timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from subscription.domain_models import (
-    PaymentCycle,
-    PlanName,
-    SubscriptionPlan,
-    SubscriptionStatus,
-)
-from subscription.domain_models import UserSubscription as DomainUserSubscription
-from subscription.models import SubscriptionPlan, UserSubscription
-from subscription.unit_of_work import DjangoUnitOfWork
+from subscription.adapters.models import SubscriptionPlan, UserSubscription
+from subscription.domain.domain_models import PaymentCycle, PlanName
+from subscription.domain.domain_models import SubscriptionPlan as DomainSubscriptionPlan
+from subscription.domain.domain_models import SubscriptionStatus
+from subscription.domain.domain_models import UserSubscription as DomainUserSubscription
+from subscription.service_layer.unit_of_work import DjangoUnitOfWork
 
 
 class TestDjangoUnitOfWork(TestCase):

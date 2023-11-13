@@ -2,9 +2,11 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from subscription.domain import commands
 from subscription.serializers import SubscriptionRequestSerializer
-from subscription.services import SubscriptionService
-from subscription.unit_of_work import DjangoUnitOfWork
+from subscription.service_layer import message_bus
+from subscription.service_layer.services import SubscriptionService
+from subscription.service_layer.unit_of_work import DjangoUnitOfWork
 
 
 class SubscriptionViewSet(viewsets.ViewSet):
@@ -19,11 +21,13 @@ class SubscriptionViewSet(viewsets.ViewSet):
         valid_data = serializer.validated_data
 
         try:
-            result = self.subscription_service.subscribe_user_to_plan(
+            cmd = commands.CreateSubscription(
                 user_id=request.user.id,
                 plan_name=valid_data["plan_name"],
                 payment_details=valid_data["payment_details"],
             )
+            results = message_bus.handle(cmd, self.uow)
+            result = results.pop(0)
         except ValueError as e:
             return Response(
                 {"success": False, "message": str(e)},
@@ -35,9 +39,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["post"], url_path="cancel")
     def cancel(self, request):
         try:
-            result = self.subscription_service.cancel_subscription(
-                user_id=request.user.id
+            results = message_bus.handle(
+                commands.CancelSubscription(user_id=request.user.id), self.uow
             )
+            result = results.pop(0)
         except ValueError as e:
             return Response(
                 {"success": False, "message": str(e)},
@@ -49,9 +54,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["post"], url_path="renew")
     def renew(self, request):
         try:
-            result = self.subscription_service.renew_subscription(
-                user_id=request.user.id
+            results = message_bus.handle(
+                commands.RenewSubscription(user_id=request.user.id), self.uow
             )
+            result = results.pop(0)
         except ValueError as e:
             return Response(
                 {"success": False, "message": str(e)},
@@ -63,9 +69,14 @@ class SubscriptionViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["post"], url_path="change-plan")
     def change(self, request):
         try:
-            result = self.subscription_service.change_subscription_plan(
-                user_id=request.user.id, new_plan_name=request.data["plan_name"]
+            results = message_bus.handle(
+                commands.ChangeSubscriptionPlan(
+                    user_id=request.user.id,
+                    new_plan_name=request.data["plan_name"],
+                ),
+                self.uow,
             )
+            result = results.pop(0)
         except ValueError as e:
             print(e)
             return Response(
