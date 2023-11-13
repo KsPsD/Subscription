@@ -81,6 +81,3 @@ class FakeUnitOfWork(DjangoUnitOfWork):
 
     def rollback(self):
         self.rolled_back = True
-
-    def collect_new_events(self):
-        pass

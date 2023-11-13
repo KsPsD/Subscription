@@ -39,6 +39,10 @@ class TrackingRepository:
             self.seen.add(obj)
         return obj
 
+    def update(self, obj: T):
+        self._repo.update(obj)
+        self.seen.add(obj)
+
     # NOTE: 이 메서드는 래핑된 리포지토리의 get,add 이외의 메서드가 호출될 때 사용된다.
     def __getattr__(self, name: str):
         def wrapper(*args, **kwargs):
