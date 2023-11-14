@@ -1,5 +1,6 @@
 # repository.py
 
+from datetime import date, timedelta
 from typing import Generic, Iterable, List, Optional, Protocol, Set, TypeVar
 
 import subscription.adapters.models as models
@@ -80,6 +81,17 @@ class DjangoUserSubscriptionRepository(
             return django_subscription.to_domain()
         else:
             return None
+
+    def get_subscriptions_expiring_on(
+        date: date,
+    ) -> List[domain_models.UserSubscription]:
+        return [
+            django_subscription.to_domain()
+            for django_subscription in models.UserSubscription.objects.filter(
+                end_date=date,
+                status=domain_models.SubscriptionStatus.ACTIVE.value,
+            )
+        ]
 
     def list(self) -> List[domain_models.UserSubscription]:
         return [
