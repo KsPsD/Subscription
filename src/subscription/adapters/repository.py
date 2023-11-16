@@ -83,6 +83,7 @@ class DjangoUserSubscriptionRepository(
             return None
 
     def get_subscriptions_expiring_on(
+        self,
         date: date,
     ) -> List[domain_models.UserSubscription]:
         return [
