@@ -15,6 +15,7 @@ freezegun = "*"
 tenacity = "*"
 coverage = "*"
 celery = "*"
+redis = "*"
 
 [dev-packages]
 
