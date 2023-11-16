@@ -46,5 +46,33 @@ services:
     ports:
       - 6379:6379
 
+  celeryworker:
+    build: .
+    command: celery -A src.your_project_name worker -l info
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - db
+      - rabbitmq
+      - redis-worker
+    environment:
+      - DATABASE_URL=postgres://postgres:DO_NOT_USE_THIS_PASSWORD_IN_PRODUCTION@db:5432/test_db
+      - CELERY_BROKER_URL=amqp://user:password@rabbitmq:5672
+      - CELERY_RESULT_BACKEND=redis://redis-worker:6379
+
+  celerybeat:
+    build: .
+    command: celery -A src.your_project_name beat -l info
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - db
+      - rabbitmq
+      - redis-worker
+    environment:
+      - DATABASE_URL=postgres://postgres:DO_NOT_USE_THIS_PASSWORD_IN_PRODUCTION@db:5432/test_db
+      - CELERY_BROKER_URL=amqp://user:password@rabbitmq:5672
+      - CELERY_RESULT_BACKEND=redis://redis-worker:6379
+
 volumes:
   postgres_data:
