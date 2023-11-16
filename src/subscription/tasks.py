@@ -17,10 +17,12 @@ def setup_periodic_tasks(sender, **kwargs):
 @shared_task
 def renew_expired_subscriptions():
     yesterday = (datetime.today() - timedelta(days=1)).date()
+
     with unit_of_work.DjangoUnitOfWork() as uow:
         expired_subscriptions = uow.user_subscriptions.get_subscriptions_expiring_on(
             yesterday
         )
+
         for subscription in expired_subscriptions:
             user_id = subscription.user_id
             message_bus.handle(commands.RenewSubscription(user_id=user_id), uow=uow)
