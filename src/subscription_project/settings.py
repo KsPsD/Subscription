@@ -10,13 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 import dj_database_url
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -125,3 +128,16 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+RABBITMQ_URL = os.getenv("RABBITMQ_URL", default="amqp://user:password@localhost:5672")
+REDIS_WORKER_URL = os.getenv("REDIS_WORKER_URL", default="redis://localhost:6379")
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", default=RABBITMQ_URL)
+CELERY_RESULT_BACKEND = os.getenv("REDIS_WORKER_URL", default=REDIS_WORKER_URL)
+CELERY_TASK_DEFAULT_QUEUE = "primary"
+CELERY_TASK_DEFAULT_EXCHANGE = "primary"
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Seoul"
