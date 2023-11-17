@@ -17,7 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from subscription.views.front import pricing_view
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("subscription.urls")),
+    path("pricing/", pricing_view, name="pricing"),
 ]
