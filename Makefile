@@ -4,7 +4,7 @@ MANAGE_PY = $(BASE_DIR)/manage.py
 DOCKER_COMPOSE = docker-compose 
 APP_NAME = subscription
 
-.PHONY: test clean migrate migrations run createsuperuser install-deps docker-build docker-up docker-down test-coverage
+.PHONY: test clean migrate migrations run createsuperuser install-deps docker-build docker-up docker-down test-coverage show_urls showmigrations initialize-plans
 
 migrations:
 	$(PIPENV_RUN) python $(MANAGE_PY) makemigrations
@@ -37,6 +37,10 @@ create_superuser:
 
 show_urls:
 	$(PIPENV_RUN) python $(MANAGE_PY) show_urls
+
+initialize-plans:
+	@echo "Creating sample plans..."
+	$(PIPENV_RUN) python $(MANAGE_PY) initialize_plans
 
 # Docker
 docker-build:

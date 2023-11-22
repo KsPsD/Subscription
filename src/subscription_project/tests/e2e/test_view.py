@@ -5,7 +5,7 @@ from unittest import mock
 from django.contrib.auth.models import User
 from django.urls import reverse
 from freezegun import freeze_time
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.test import APITestCase
 
 from subscription.adapters.repository import DjangoSubscriptionPlanRepository
@@ -15,9 +15,9 @@ from subscription.domain.domain_models import PaymentCycle, PlanName, Subscripti
 class SubscriptionViewSetTest(APITestCase):
     def setUp(self):
         self.test_user = User.objects.create_user(
-            "testuser", "test@example.com", "testpassword"
+            "admin", "admin@example.com", "password"
         )
-        self.client.login(username="testuser", password="testpassword")
+        self.client.login(username="admin", password="password")
         self.plan_repository = DjangoSubscriptionPlanRepository()
         self.test_plan = SubscriptionPlan(
             name=PlanName.BASIC,
@@ -68,13 +68,10 @@ class SubscriptionViewSetTest(APITestCase):
                 "cvc": "123",
             },
         }
-
         response = self.client.post(
             url, data=json.dumps(data), content_type="application/json"
         )
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertFalse(response.data["success"])
 
     def test_subscribe_to_wrong_card_number(self):
         url = reverse("subscription-subscribe")

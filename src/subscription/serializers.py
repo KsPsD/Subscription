@@ -3,7 +3,7 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from subscription.domain.domain_models import Card
+from subscription.domain.domain_models import Card, PlanName
 
 
 class PaymentDetailsSerializer(serializers.Serializer):
@@ -72,6 +72,11 @@ class CardSerializer(serializers.Serializer):
 class SubscriptionRequestSerializer(serializers.Serializer):
     plan_name = serializers.CharField(required=True)
     payment_details = PaymentDetailsSerializer(required=True)
+
+    def validate_plan_name(self, value):
+        if value not in PlanName.__members__.values():
+            raise serializers.ValidationError("Invalid plan name.")
+        return value
 
     def validate(self, data):
         return data
