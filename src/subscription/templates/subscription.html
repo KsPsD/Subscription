@@ -1,5 +1,6 @@
 {% load static %}
-<link href="{% static 'output.css' %}" rel="stylesheet" />
+<link href="{% static 'css/output.css' %}" rel="stylesheet" />
+<script src="{% static 'js/subscription.js' %}"></script>
 <!--
 // v0 by Vercel.
 // https://v0.dev/t/txLiKGX
@@ -15,7 +16,7 @@
         <div>
           <h3 class="text-2xl font-bold text-center">Basic</h3>
           <div class="mt-4 text-center text-zinc-600 dark:text-zinc-400">
-            <span class="text-4xl font-bold"> $29 </span>
+            <span class="text-4xl font-bold"> 6000원 </span>
             / month
           </div>
           <ul class="mt-4 space-y-2">
@@ -35,7 +36,7 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              720p Video Rendering
+              기본 콘텐츠 접근 권한
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -53,7 +54,7 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              2GB Cloud Storage
+              최대 1명 동시 스트리밍
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -71,12 +72,13 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              Basic Video Templates
+              720p 화질 제공
             </li>
           </ul>
         </div>
         <div class="mt-6">
           <button
+            onClick="callApi('basic')"
             class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
           >
             Get Started
@@ -92,9 +94,9 @@
           Popular
         </div>
         <div>
-          <h3 class="text-2xl font-bold text-center">Pro</h3>
+          <h3 class="text-2xl font-bold text-center">Standard</h3>
           <div class="mt-4 text-center text-zinc-600 dark:text-zinc-400">
-            <span class="text-4xl font-bold"> $59 </span>
+            <span class="text-4xl font-bold"> 11900원 </span>
             / month
           </div>
           <ul class="mt-4 space-y-2">
@@ -103,18 +105,18 @@
                 ><svg
                   class="text-white text-2xs"
                   fill="none"
-                  height="16"
+                  height="24"
                   stroke="currentColor"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
                   viewBox="0 0 24 24"
-                  width="16"
+                  width="24"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              1080p Video Rendering
+              최대 2명 동시 스트리밍
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -132,7 +134,7 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              10GB Cloud Storage
+              기본 콘텐츠 및 일부 프리미엄 콘텐츠 접근 권한
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -150,7 +152,7 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              Premium Video Templates
+              광고 없는 스트리밍
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -168,12 +170,13 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              Collaboration Tools
+              1080p 화질 제공
             </li>
           </ul>
         </div>
         <div class="mt-6">
           <button
+            onClick="callApi('standard')"
             class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full bg-gradient-to-r from-pink-500 to-purple-500"
           >
             Get Started
@@ -184,9 +187,9 @@
         class="flex flex-col p-6 bg-white shadow-lg rounded-lg dark:bg-zinc-850 justify-between border border-gray-300"
       >
         <div>
-          <h3 class="text-2xl font-bold text-center">Enterprise</h3>
+          <h3 class="text-2xl font-bold text-center">Premium</h3>
           <div class="mt-4 text-center text-zinc-600 dark:text-zinc-400">
-            <span class="text-4xl font-bold"> $99 </span>
+            <span class="text-4xl font-bold"> 14900원 </span>
             / month
           </div>
           <ul class="mt-4 space-y-2">
@@ -206,7 +209,7 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              4K Video Rendering
+              모든 콘텐츠 접근 권한 (기본 + 프리미엄)
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -224,7 +227,7 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              Unlimited Cloud Storage
+              최대 4명 동시 스트리밍
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -242,7 +245,7 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              Custom Video Templates
+              4K + HDR 화질 제공
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -260,7 +263,7 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              Advanced Collaboration Tools
+              개인화 추천 서비스
             </li>
             <li class="flex items-center">
               <span class="bg-green-500 rounded-full mr-2 p-1"
@@ -278,12 +281,13 @@
                 >
                   <polyline points="20 6 9 17 4 12"></polyline></svg
               ></span>
-              Dedicated Support
+              다운로드 옵션 및 오프라인 시청 기능
             </li>
           </ul>
         </div>
         <div class="mt-6">
           <button
+            onClick="callApi('premium')"
             class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
           >
             Get Started
